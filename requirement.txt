@@ -1,0 +1,39 @@
+#Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+#python -m app.scripts.login_data  (le nom du script login_data.py)
+
+# Dépendances principales
+faiss-cpu
+langchain
+sentence-transformers==2.7.0
+transformers==4.35.2
+accelerate
+bitsandbytes
+sentencepiece
+huggingface-hub
+torch
+torchvision
+torchaudio
+pandas
+
+# LangChain extensions
+langchain-community
+
+# Traitement PDF/Excel
+pypdf
+pdfplumber
+pymupdf
+unstructured
+pillow
+regex
+beautifulsoup4
+
+beautifulsoup4 
+deep-translator 
+PyPDF2 
+html2text
+
+# Elasticsearch
+elasticsearch==7.17.9
+
+# Ollama
+ollama
