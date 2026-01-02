@@ -8,6 +8,14 @@ import json
 from typing import List, Optional
 from bson import ObjectId
 
+from fastapi import Request
+from sse_starlette.sse import EventSourceResponse
+from datetime import datetime
+from app.core.sse_security import fernet, SSE_TOKEN_STORE, SSE_TTL_SECONDS
+
+from fastapi import APIRouter, Depends
+from datetime import datetime, timedelta
+import uuid
 # ============================================================
 # IMPORTS FASTAPI
 # ============================================================
@@ -282,13 +290,14 @@ async def list_documents(
 async def delete_document(doc_id: str):
     return delete_document_service(doc_id)
 
-@router.delete("/documents/all")
+@router.delete("/es/documents/all")
 async def delete_all_documents():
     return delete_all_documents_service()
 
 # ============================================================
 # 🧹 PREPROCESSING Excels & Reports 
 # ============================================================
+"""
 @router.get("/preprocessingexcels")
 async def preprocessing_excels():
     async def stream():
@@ -303,3 +312,29 @@ async def preprocessing_reports():
         async for msg in preprocess_data_pipeline_pdf():
             yield f"data: {msg}\n\n"
     return StreamingResponse(stream(), media_type="text/event-stream")
+"""
+
+
+@router.post("/sse/token")
+async def generate_sse_token(user=Depends(get_current_user)):
+    import uuid
+    from datetime import datetime, timedelta
+    from app.core.sse_security import fernet, SSE_TOKEN_STORE, SSE_TTL_SECONDS
+
+    raw_token = str(uuid.uuid4())
+    encrypted_token = fernet.encrypt(raw_token.encode()).decode()
+
+    # ⚡ Utiliser _id ou username comme identifiant
+    user_id = str(user.get("_id"))  # ObjectId -> string
+    # ou user.get("username") si vous préférez
+
+    SSE_TOKEN_STORE[raw_token] = {
+        "user_id": user_id,
+        "expires_at": datetime.utcnow() + timedelta(seconds=SSE_TTL_SECONDS),
+    }
+
+    return {
+        "sse_token": encrypted_token,
+        "expires_in": SSE_TTL_SECONDS
+    }
+

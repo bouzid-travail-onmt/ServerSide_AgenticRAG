@@ -7,7 +7,7 @@ from time import time
 from app.core.config import API_PREFIX, DEBUG, PROJECT_NAME, VERSION
 from app.core.events import create_start_app_handler, create_stop_app_handler
 from app.api.routes.api import router as api_router  # tes routes principales
-from app.api.routes import login, admin, rag_indicator_public  # import des routeurs
+from app.api.routes import login, admin, rag_indicator_public,preprocessing # import des routeurs
 
 
 def get_application() -> FastAPI:
@@ -15,7 +15,7 @@ def get_application() -> FastAPI:
 
     # Autoriser le frontend React
     origins = [
-        "http://192.168.0.102:3000",  # ton frontend sur le téléphone
+        "http://192.168.101.47:3000",  # ton frontend sur le téléphone
         "http://localhost:3000",      # si tu testes sur PC
     ]
 
@@ -36,6 +36,7 @@ def get_application() -> FastAPI:
     application.include_router(login.router, prefix="/api/auth", tags=["auth","logout"])
     # --- Inclusion du router admin ---
     application.include_router(admin.router, prefix="/api/admin", tags=["auth", "Data Preprocessing", "View Data", "ElasticSearch Management", "Indicators Management", "System Admin"])
+    application.include_router(preprocessing.router, prefix="/api/admin", tags=["auth", "Data Preprocessing", "View Data", "ElasticSearch Management", "Indicators Management", "System Admin"])
     # --- Fin inclusion router admin (Toutes les features de l'admin dans ce router) ---
     # Event handlers
     application.add_event_handler("startup", create_start_app_handler(application))
